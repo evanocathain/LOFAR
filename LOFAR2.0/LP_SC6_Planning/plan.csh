@@ -9,7 +9,8 @@
 
 # Print Usage
 if ($#argv == 0 ) then
-  echo "Usage: plan.csh [dec_min] [gb_min] [tobs_min] [core/int]"
+  echo "Usage: csh plan.csh [dec_min] [gb_min] [tobs_min] [core/int]"
+  # Above should 'just work' but do a csh -f in case it doesn't
   goto death
 endif
 
@@ -45,6 +46,9 @@ endif
 # What PSRCAT version is being used
 set psrcat_version = `psrcat -v | grep "Catalogue version number" | awk '{print $NF}'`
 echo "Using PSRCAT version" $psrcat_version
+# Try not to use a very old PSRCAT
+# PSRCAT v1.60 --- 2702 pulsars 
+# PSRCAT v1.69 --- 3359 pulsars
 
 # Set some LOFAR parameters
 set lat_lofar    = 52.9      # This is basically the superterp latitude
@@ -72,7 +76,6 @@ echo "150-MHz Tobs and SNR, to get SNR>="$snr_min" AND (SLOW: Tobs of max(1040 p
 echo "PSR             Tobs(s)         SNR" >> "plot_"$Tobs_min"_"$array
 # Do the SNR and Tobs calculations and output to file
 awk -v Nstations=$Nstations -v Tobs_min=$Tobs_min '{Tobs=$2*1040.0; if ($2>=0.030 && $2*1040 < Tobs_min) Tobs=Tobs_min; if ($2<0.030 && $2*1040 < 1200) Tobs=1200.0;SNR=Nstations*0.001*$4*sqrt(2.0*90.0*10^6*Tobs)/((1.0/$5)*(2.0*1380.0/512.0)*858.0); if (SNR<30) {Tobs=Tobs*(30.0/SNR)^2; SNR=30.0}; printf "%s\t%f\t%f\n",$1,Tobs,SNR}' PSRs_p0_dm_s150_fac1 | awk '{s+=$2; print $0,(s/(60*60))}' | cat -n >> "plot_"$Tobs_min"_"$array
-
 
 death:
 exit
