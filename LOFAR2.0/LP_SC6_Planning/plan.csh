@@ -64,6 +64,7 @@ set Nperiods_min = 1040.0    # Want to have at least 1024 periods for nice FFTs!
 # SNR = S_150*sqrt(2*90*10^6*1040*p0)/(fac1*fac2*gain*(858))
 
 # Filter PSRCAT for the dec and gb limits and those that have a S_150 flux density measurement
+alias psrcatdog 'psrcat -o short -nohead -nonumber'
 psrcatdog -c "name rajd decjd gl gb p0 dm s80 s150" | sort -gr -k9 | awk -v lat_lofar=$lat_lofar -v dec_min=$dec_min -v gb_min=$gb_min '{if ($3<lat_lofar) zenith_angle=lat_lofar-$3; if ($3>=lat_lofar) zenith_angle=$3-lat_lofar; if ($9!="*" && $3>dec_min && ($5>gb_min || $5<-gb_min)) print $1,$6,$7,$9,cos(zenith_angle*3.14159/180.0)^2}' > PSRs_p0_dm_s150_fac1
 
 # Put some header lines in output file
