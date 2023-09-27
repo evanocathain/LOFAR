@@ -1,6 +1,7 @@
-LOFAR2.0/LP_SC6_Planning/plot_*
+LOFAR2.0/LP_SC6_Planning/*core
+LOFAR2.0/LP_SC6_Planning/*int
 LOFAR2.0/LP_SC6_Planning/PSRs*
 LOFAR2.0/LP_SC6_Planning/tsky*
 LOFAR2.0/LP_SC6_Planning/v1*
-
+LOFAR2.0/LP_SC6_Planning/p_pdot
 
