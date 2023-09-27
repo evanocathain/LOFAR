@@ -57,15 +57,15 @@ set snr_min      = 30.0
 set Nperiods_min = 1040.0    # Want to have at least 1024 periods for nice FFTs!
 
 #
-# Flux_density = SNR * fac1 * fac2 * (gain*Tsys)/(sqrt(2*BW*Tobs))
+# Flux_density = SNR * fac1 * fac2 * [(gain*Tsys)/(sqrt(2*BW*Tobs))]*sqrt(delta/(1-delta))
 #
 # Take Tobs = Nperiods_min*p0 OR as specified by input cmd arg
 # Take Flux_density as S_150 (natively in mJy) from PSRCAT
 # Take BW as 90 MHz (so 105 to 195 MHz basically)
-# Take Tsys from code. For first answer use Tgal = 54.8K *(408 MHz/150 MHz)^(2.75) = 858 K
+# Take Tsys from tsky_mvp.py code. In initial tests used Tgal = 54.8K *(408 MHz/150 MHz)^(2.75) = 858 K
 # Take fac1 = cos^2(zenith)       # degradation factor, due to projection effects.
-# Take fac2 = coherency factor    # degradation factor, due to imperfect coherent summation of stations
-# gain = 2*k/Aeff = 2*1380/512 for a core station at 150 MHz
+# Take fac2 = coherency factor    # degradation factor, due to imperfect coherent summation of stations. Taking this to be 1!
+# gain = 2*k/Aeff = 2*1380/512 for a core station at 150 MHz (van Haarlem et al. 2013)
 #
 # SNR = S_150*[sqrt(2*90*10^6*Tobs)/(fac1*fac2*(2*1380/512)*Tsys)]*sqrt((1-delta)/(delta))
 #
@@ -78,7 +78,7 @@ psrcatdog -c "name rajd decjd gl gb p0 dm s80 s150" | sort -gr -k9 | awk -v lat_
 
 # Grab Tsky values for the pulsars at 150 MHz
 if (! -e Tsky) then
-    awk '{print $1}' PSRs_p0_dm_s150_fac1 | xargs -n 1 psrcat -o short -nohead -nonumber -c "raj decj" | awk '{print "python /home/pulsar/Downloads/tsky_mvp.py -r "$1" -d "$2}' | csh | grep "150:" > Tsky
+    awk '{print $1}' PSRs_p0_dm_s150_fac1 | xargs -n 1 psrcat -o short -nohead -nonumber -c "raj decj" | awk '{print "python /home/pulsar/Downloads/tsky_mvp.py -r "$1" -d "$2}' | csh | grep "150:" | awk '{print $2}' > Tsky
 endif
 paste PSRs_p0_dm_s150_fac1 Tsky > PSRs_p0_dm_s150_fac1_Tsky
 
